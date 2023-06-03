@@ -64,7 +64,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     FuzzedDataProvider fdp(data, size);
 
     const auto symbol = static_cast<wchar_t>(data[407]);
-    const auto choice = data[408] % 5;
+    //const auto choice = data[408] % 5;
 
     const std::size_t font_size = fdp.remaining_bytes();
     std::unique_ptr<uint8_t[]> data_ptr(new uint8_t[font_size]);
@@ -74,32 +74,20 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     auto font = Font(data_ptr.get(), font_size);
     if (font.font == nullptr) {
         // Failed to load font
-        return -1;
+        return 0;
     }
 
     // Find the glyph
     int index = ttf_find_glyph(font.font, symbol);
-    if (index < 0) return -1;
-
-    switch(choice) {
-        case 0:
-            font.load_mesh();
-            break;
-        case 1:
-            font.load_3D_mesh();
-            break;
-        case 2:
-            font.load_svg();
-            break;
-        case 3:
-            font.splitted_outline();
-            break;
-        case 4:
-            font.linear_outline();
-            break;
-        default:
-            return -1;
+    if (index < 0) {
+        return 0;
     }
+
+    font.load_mesh();
+    font.load_3D_mesh();
+    font.load_svg();
+    font.splitted_outline();
+    font.linear_outline();
 
     return 0;
 }
